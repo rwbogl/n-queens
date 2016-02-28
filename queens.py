@@ -1,3 +1,5 @@
+import itertools
+
 def n_queens(n):
     """Return a solution to the n-queens problem for an nxn board.
     This uses E. Pauls' explicit solution, which solves n > 3.
@@ -47,6 +49,31 @@ def n_queens(n):
         return [fix(x, y) for (x, y) in C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8]
     elif mod == 3:
         return [fix(x, y) for (x, y) in [(n, n)] + n_queens(n - 1)]
+
+    return []
+
+def n_queens_comb(n):
+    """Return a solution to the n-queens problem for an nxn board.
+    This uses the naive combination-picking solution, which will find a
+    solution if one exists.
+
+    :n: Nonnegative integer.
+    :returns: See n_queens().
+
+    """
+    board = itertools.product(range(n), range(n))
+    is_good = True
+
+    for queens in itertools.combinations(board, n):
+        is_good = True
+        for point in queens:
+            effective = [q for q in queens if q != point]
+            if is_guarded(point, effective, n):
+                is_good = False
+                break
+
+        if is_good:
+            return queens
 
     return []
 
