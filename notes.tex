@@ -1,0 +1,245 @@
+\documentclass{article}
+\usepackage[linesnumbered, lined, boxed]{algorithm2e} 
+\usepackage[]{geometry} 
+
+\begin{document}
+\title{Notes on N-Queens Solutions}
+\author{Robert Dougherty-Bliss}
+\date{\today}
+\maketitle
+
+The $n$-queens problem is this: Given an $n \times n$ chessboard, can $n$
+queens be placed on it such that no queen can attack another? The answer,
+proved by E.~Pauls in 1874, is yes, for $n = 1$ and $n > 3$
+\cite{jordanbell07}. We list some notes on the running times of various
+solutions.
+
+\section*{Running Times}
+\label{sec:running_times}
+
+Here we will list various solutions to the $n$-queens problem and compare their
+running times. Included with each are pseudocode algorithms.
+
+\begin{table}[h]
+ \caption{Running Time of $n$-Queens Solutions}
+ \centering
+ \begin{tabular}{lc}
+     \hline
+     Combinatoric Brute Force & $O(n(n^2!))$ \\
+     Row-based Brute Force & $O(n^{n+1})$ \\
+     Backtracking & $O(n!)$ \\
+     Explicit Solution & $O(n)$ \\
+     \hline
+ \end{tabular}
+\end{table}
+
+\subsection*{Guarded Check}
+\label{sub:guarded_check}
+
+Some of the solutions check if a given answer is a solution. Here is an
+$O(n^2)$ algorithm to check if this is true.
+
+First, some definitions. The $n \times n$ chessboard is represented as $[0, n-1]
+\times [0, n-1]$, indexed by row-column points $(r, c)$. The row $r = 0$ is the
+top of the board, and the column $c = 0$ is the leftmost column.
+
+The $k$th sum diagonal on a chess board is the set of points $(r, c)$ on the
+board such that $r + c = k$. The $k$th difference diagonal is the set of points
+$(r, c)$ on the board such that $r - c = k$. Sum diagonals run from bottom-left
+to top-right, and difference diagonals run from top-left to bottom-right.
+
+Queens on a chessboard guard their rows, columns, and diagonals. That motivates
+the definition of a \textit{guarded point}. Given a point $P(r, c)$ and a set
+of queens $Q$, the point $P$ is guarded by $Q$ iff there exists some $R(a, b)
+\in Q$ such that $R$ and $P$ share a column, row, or diagonal. That is, iff $a
++ b = r + c$, $a - b = r - c$, $a = r$, or $b = c$. In the worst-case for a set
+of $n$ queens, the running time of checking if a point is guarded is $O(n)$. To
+check if an answer is a solution, simply perform this check against all $n$
+points, which is $O(n)O(n) = O(n^2)$.
+
+\begin{algorithm}
+    \caption{Guarded Check}
+    \KwIn{$P(r, c)$, a point, and $Q$, a set of queens}
+    \KwOut{True if $P$ is guarded by $Q$, False if not}
+
+    \ForEach{$(a, b)$ in $Q$}{
+        \If{$a + b = r + c$ or $a - b = r - c$}{
+            \Return{True}\;
+        }
+        \If{$a = r$ or $b = c$}{
+            \Return{True}\;
+        }
+    }
+
+    \Return{False}\;
+\end{algorithm}
+
+\subsection*{Combinatoric Brute Force}
+\label{sub:combinatoric_brute_force}
+
+A first attempt to solve the $n$-queens problem might be to try every possible
+combination of $n$ distinct points from an $n \times n$ chessboard. This gives
+$${n^2 \choose n} = \frac{n^2!}{n!(n^2 - n)!}$$ possible combinations. For all
+$n \geq 1$, we have that $n^2 - n \geq 0$, so $n!(n^2 - n)! \geq 1$. So for all
+$n \geq 1$, $$\frac{n^2!}{n!(n^2 - n)!} \leq n^2!$$ That is, to enumerate every
+possible combination is $O(n^2!)$. But we also need to check if each combination
+is a solution, which is $O(n)$. So the total worst-case running time of this
+solution is $O(n^2!)O(n^2) = O(n^2(n^2!))$.
+
+\begin{algorithm}
+    \caption{Combinatoric Brute Force}
+    \KwIn{$n$, a non-negative integer}
+    \KwOut{A set of $(r, c)$ points that solve the $n$-queens problem, or an
+              empty set if no solution exists}
+
+    $combinations \leftarrow$ $[0, n-1] \times [0, n-1]$\;
+    \ForEach{answer in combinations}{
+        solved $\leftarrow$ True\;
+        \ForEach{point in answer}{
+            \If{point is guarded by rest of answer}{
+                solved $\leftarrow$ False\;
+                break\;
+            }
+        }
+
+        \If{solved}{
+            \Return{answer}\;
+        }
+    }
+\end{algorithm}
+
+\subsection*{Row-Based Brute Force}
+\label{sub:row_based_brute_force}
+
+An improvement on the previous technique is to note that no solution has two
+queens placed in the same row. Then, restrict the queens from being placed in
+the same row. There are $n$ choices for the first row, $n$ for the second, and
+so on until the $n$th row. That gives $$\underbrace{n \times n \times n \times
+\cdots \times n}_{n \ \rm times} = n^n$$ combinations to check. To enumerate all
+of these is $O(n^n)$, but we also need to check each, which is $O(n)$. Thus the
+worst case running time is $O(n^n)O(n^2) = O(n^{n+2})$. The solution algorithm is
+identical except for the method of generating combinations.
+
+\subsection*{Backtracking}
+\label{sub:backtracking}
+
+Another improvment is to use backtracking. This method starts by placing a queen
+at $(0, 0)$, then moving to the next row. Once a non-guarded point is found on
+that row, place a queen there, and move to the next row. Do this until there are
+$n$ queens placed.
+
+If every point on a row is guarded, then move back one row and delete the queen
+there. Then attempt to find another non-guarded point in that row. If there are
+none, move back another row, and attempt to delete and move the queen there. If
+the queen in the first row is moved past the end of its row, then there is no
+solution possible.
+
+In the worst case, this will search roughly $n$ points in the first row, then
+$n - 1$ in the next, and so on, so the worst-case running time is $O(n!)$.
+
+\begin{algorithm}[H]
+    \caption{Backtracking}
+    \KwIn{$n$, a non-negative integer}
+    \KwOut{A set of $(r, c)$ points that solve the $n$-queens problem, or an
+              empty set if no solution exists}
+
+    place queen at $(0, 0)$\;
+    (row, col) $\leftarrow$ (0, 0)\;
+
+    \While{number of queens $\neq n$}{
+        \If{(row, col) is not guarded}{
+            place a queen at (row, col)\;
+            (row, col) $\leftarrow$ (row + 1, 0)\;
+        } \Else {
+            \While{col $= n - 1$}{
+                \If{row $= 0$}{
+                    \tcc{End of first row.}
+                    \Return{no solution}
+                }
+                \tcc{End of current row; backtrack until we can move the
+                previous queen.}
+                (row, col) $\leftarrow$ previous queen\;
+                delete previous queen\;
+            }
+
+            col $\leftarrow$ col + 1\;
+        }
+    }
+\end{algorithm}
+
+\subsection*{Explicit Solution}
+\label{sub:explicit_solution}
+
+This solution is due to Pauls, discussed in \cite{jordanbell07}. Pauls breaks
+down $n > 3$ by congruence classes modulo 6, then offers a solution for each of
+them. This requires one comparison, and then the creation of a number of sets
+that are joined together. The number of elements in the sets are linear in $n$,
+and so this solution is $O(n)$. Note that for Pauls the board is $[1, n] \times
+[1, n]$ instead of $[0, n-1] \times [0, n-1]$. An outline of Pauls proof is
+given by \cite{jordanbell07}. Another soluion and proof is given by
+\cite{hoffman69}.
+
+\begin{algorithm}[H]
+    \caption{Pauls' Explicit Solution}
+    \KwIn{$n$, a non-negative integer}
+    \KwOut{A set of $(r, c)$ points that solve the $n$-queens problem, or an
+              empty set if no solution exists}
+
+    \If{$n = 1$}{
+        \Return{$\{(1, 1)\}$}
+    }
+
+    \If{$n = 2, 3$}{
+        \Return{$\emptyset$}\;
+    }
+
+    \Switch{$n \bmod 6$}{
+        \Case{0, 4}{
+            $A1 = \{(2k, k) : 1 \leq k \leq n/2\}$\;
+            $A2 = \{(2k - 1, n/2 + k) : 1 \leq k \leq n/2\}$\;
+            \Return{$A1 \cup A2$}\;
+        }
+        \Case{1, 5}{
+            $B1 = \{(n, 1)\}$\;
+            $B2 = \{(2k, k + 1) : 1 \leq k \leq (n-1)/2\}$\;
+            $B3 = \{(2k - 1, (n+1)/2 + k) : 1 \leq k \leq (n-1)/2\}$\;
+            \Return{$B1 \cup B2 \cup B3$}\;
+        }
+        \Case{2}{
+            $C1 = \{(4, 1)\}$\;
+            $C2 = \{(n, n/2 - 1)\}$\;
+            $C3 = \{(2, n/2)\}$\;
+            $C4 = \{(n-1, n/2 + 1)\}$\;
+            $C5 = \{(1, n/2 + 2)\}$\;
+            $C6 = \{(n - 3, n)\}$\;
+            $C7 = \{(n - 2k, k + 1) : 1 \leq k \leq n/2 - 3\}$\;
+            $C8 = \{(n - 2k - 3, n/2 + k + 2) : 1 \leq k \leq n/2 - 3\}$\;
+            \Return{$C1 \cup C2 \cup C3 \cup C4 \cup C5 \cup C6 \cup C7 \cup C8$}\;
+        }
+        \Case{3}{
+            \Return{$(n, n) \cup $ (solution for $n - 1$)}\;
+        }
+    }
+\end{algorithm}
+
+\begin{thebibliography}{9}
+
+\bibitem{jordanbell07}
+    Bell, Jordan, and Stevens, Brett,
+    2007:
+    A survey of known results and research areas for n-queens,
+    \emph{Discrete Math},
+    \textbf{309},
+    1--31.
+
+\bibitem{hoffman69}
+    E.J. Hoffman, and J.C. Loessi, and R.C. Moore,
+    1969:
+    Constructions for the Solution of the m Queens Problem,
+    \emph{Math. Mag.},
+    \textbf{42},
+    66--72
+
+\end{thebibliography}
+
+\end{document}
