@@ -98,14 +98,13 @@ def n_queens_bt(n):
             while col == n - 1:
                 # At the end of the current row; have to backtrack until we can
                 # place a new queen.
-                try:
-                    row, col = queens.pop()
-                except IndexError:
+                if row == 0:
                     # We went back to the first row and were at the end, so
                     # there are no solutions possible.
                     return []
 
-            # We aren't at the end or in a safe spot, so move to the next point.
+                row, col = queens.pop()
+            # We aren't at the end, so move to the next point.
             col += 1
 
     return queens
