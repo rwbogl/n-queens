@@ -60,7 +60,7 @@ def n_queens_comb(n):
     :returns: See n_queens().
 
     """
-    board = itertools.product(range(n), range(n))
+    board = itertools.product(range(n), repeat=2)
     is_good = True
 
     for queens in itertools.combinations(board, n):
