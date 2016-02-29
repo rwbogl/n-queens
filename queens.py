@@ -54,8 +54,7 @@ def n_queens(n):
 
 def n_queens_comb(n):
     """Return a solution to the n-queens problem for an nxn board.
-    This uses the naive combination-picking solution, which will find a
-    solution if one exists.
+    This uses the combinatoric brute force solution.
 
     :n: Nonnegative integer.
     :returns: See n_queens().
@@ -79,8 +78,7 @@ def n_queens_comb(n):
 
 def n_queens_bt(n):
     """Return a solution to the n-queens problem for an nxn board.
-    This uses the naive backtracking solution, which will find a solution
-    if one exists.
+    This uses the naive backtracking solution.
 
     :n: A nonnegative integer.
     :returns: See n_queens() for a description.
