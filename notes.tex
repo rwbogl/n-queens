@@ -25,8 +25,8 @@ running times. Included with each are pseudocode algorithms.
  \centering
  \begin{tabular}{lc}
      \hline
-     Combinatoric Brute Force & $O(n(n^2!))$ \\
-     Row-based Brute Force & $O(n^{n+1})$ \\
+     Combinatoric Brute Force & $O(n^2(n^2!))$ \\
+     Row-based Brute Force & $O(n^{n+2})$ \\
      Backtracking & $O(n!)$ \\
      Explicit Solution & $O(n)$ \\
      \hline
@@ -83,7 +83,7 @@ $${n^2 \choose n} = \frac{n^2!}{n!(n^2 - n)!}$$ possible combinations. For all
 $n \geq 1$, we have that $n^2 - n \geq 0$, so $n!(n^2 - n)! \geq 1$. So for all
 $n \geq 1$, $$\frac{n^2!}{n!(n^2 - n)!} \leq n^2!$$ That is, to enumerate every
 possible combination is $O(n^2!)$. But we also need to check if each combination
-is a solution, which is $O(n)$. So the total worst-case running time of this
+is a solution, which is $O(n^2)$. So the total worst-case running time of this
 solution is $O(n^2!)O(n^2) = O(n^2(n^2!))$.
 
 \begin{algorithm}
@@ -116,7 +116,7 @@ queens placed in the same row. Then, restrict the queens from being placed in
 the same row. There are $n$ choices for the first row, $n$ for the second, and
 so on until the $n$th row. That gives $$\underbrace{n \times n \times n \times
 \cdots \times n}_{n \ \rm times} = n^n$$ combinations to check. To enumerate all
-of these is $O(n^n)$, but we also need to check each, which is $O(n)$. Thus the
+of these is $O(n^n)$, but we also need to check each, which is $O(n^2)$. Thus the
 worst case running time is $O(n^n)O(n^2) = O(n^{n+2})$. The solution algorithm is
 identical except for the method of generating combinations.
 
